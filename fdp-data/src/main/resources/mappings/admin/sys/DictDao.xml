@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sicheng.admin.sys.dao.DictDao">
+
+	<!--
+	请把你的扩展SQL写到 当前 文件中
+	SysVariableDaoBase.xml文件是父文件，是由系统提供的，内含有单表操作的常用SQL。
+	SysVariableDao.xml文件是子文件，内容为空，供你写扩展SQL。
+	SysVariableDao.xml文件与SysVariableDaoBase.xml文件，在运行时会合并起来。
+	SysVariableDaoBase.xml文件，因为不包含你写的SQL,可反复替换。
+	第二次替换时，SysVariableDao.xml文件的内容你要自行做好备份。
+	-->
+
+	<cache-ref namespace="com.sicheng.admin.sys.dao.DictDao"/><!-- 下面的sql全是单表操作，可以启用二级缓存 -->
+	<!-- 按类型查询字典记录  并排序  升序 -->
+	<select id="selectList" resultType="Dict">
+		SELECT 
+			* 
+		FROM sys_dict 
+		WHERE 1=1
+		<if test="type != null and type != ''">
+			AND type = #{type}
+		</if>
+		ORDER BY  sort ASC
+	</select>
+	
+	<!-- 按标签名查询字典记录 -->
+	<select id="selectByLabel" resultType="Dict" parameterType="java.lang.String">
+		SELECT 
+			* 
+		FROM sys_dict 
+		WHERE 1=1
+			AND label = #{label}
+	</select>
+	
+	<!-- 按数据值查询字典记录 -->
+	<select id="selectByValue" resultType="Dict" parameterType="java.lang.String">
+		SELECT 
+			* 
+		FROM sys_dict 
+		WHERE 1=1
+			AND value = #{value}
+	</select>
+	
+	<select id="findTypeList" resultType="string">
+		SELECT 
+			type 
+		FROM sys_dict 
+		WHERE del_flag = #{DEL_FLAG_NORMAL} 
+		GROUP BY type
+		ORDER BY type
+	</select>
+	
+	<!-- 查询同类型的键值相同的字典数据 的数量-->
+	<select id="selectSameNumber" resultType="java.lang.Integer" parameterType="java.util.HashMap">
+		SELECT count(*) 
+		FROM sys_dict a
+		<where>
+			<if test="type != null and type != ''">
+				AND a.type = #{type}
+			</if>
+			<if test="value != null and value != ''">
+				AND a.value = #{value}
+			</if>
+			<if test="id != null and id != ''">
+				AND a.id &lt;&gt; #{id}
+			</if>
+			<if test="value != null and value != ''">
+				AND a.del_flag = #{delFlag}
+			</if>
+		</where>
+		ORDER BY  sort ASC
+	</select>
+
+	<update id="update">
+		UPDATE sys_dict SET 
+			value = #{value}, 
+			label = #{label}, 
+			type = #{type}, 
+			description = #{description}, 
+			sort = #{sort}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

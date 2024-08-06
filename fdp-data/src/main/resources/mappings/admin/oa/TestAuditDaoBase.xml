@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sicheng.admin.oa.dao.TestAuditDao">
+
+	<!-- 全部字段 -->
+	<sql id="testAuditColumns">
+		a.id AS "id",                                                        <!-- 编号 number(24)-->
+		a.proc_ins_id AS "procInsId",                                        <!-- 流程实例ID number(24)-->
+		a.user_id AS "user.id",                                              <!-- 变动用户 number(24)-->
+		a.office_id AS "office.id",                                          <!-- 归属部门 number(24)-->
+		a.post AS "post",                                                    <!-- 岗位 nvarchar2(255)-->
+		a.age AS "age",                                                      <!-- 性别 char(1)-->
+		a.edu AS "edu",                                                      <!-- 学历 nvarchar2(255)-->
+		a.content AS "content",                                              <!-- 调整原因 nvarchar2(255)-->
+		a.olda AS "olda",                                                    <!-- 现行标准 薪酬档级 varchar2(255)-->
+		a.oldb AS "oldb",                                                    <!-- 现行标准 月工资额 varchar2(255)-->
+		a.oldc AS "oldc",                                                    <!-- 现行标准 年薪总额 varchar2(255)-->
+		a.newa AS "newa",                                                    <!-- 调整后标准 薪酬档级 varchar2(255)-->
+		a.newb AS "newb",                                                    <!-- 调整后标准 月工资额 varchar2(255)-->
+		a.newc AS "newc",                                                    <!-- 调整后标准 年薪总额 varchar2(255)-->
+		a.add_num AS "addNum",                                               <!-- 月增资 varchar2(255)-->
+		a.exe_date AS "exeDate",                                             <!-- 执行时间 varchar2(255)-->
+		a.hr_text AS "hrText",                                               <!-- 人力资源部门意见 nvarchar2(255)-->
+		a.lead_text AS "leadText",                                           <!-- 分管领导意见 nvarchar2(255)-->
+		a.main_lead_text AS "mainLeadText",                                  <!-- 集团主要领导意见 nvarchar2(255)-->
+		a.create_by AS "createBy.id",                                        <!-- 创建者 varchar2(64)-->
+		a.create_date AS "createDate",                                       <!-- 创建时间 timestamp(6)-->
+		a.update_by AS "updateBy.id",                                        <!-- 更新者 varchar2(64)-->
+		a.update_date AS "updateDate",                                       <!-- 更新时间 timestamp(6)-->
+		a.remarks AS "remarks",                                              <!-- 备注信息 nvarchar2(255)-->
+		a.del_flag AS "delFlag",                                             <!-- 删除标记 char(1)-->
+		u3.name AS "user.name",
+		o4.name AS "office.name"
+		
+	</sql>
+
+	<!-- 关联表 -->
+	<sql id="testAuditJoins">
+		LEFT JOIN sys_user u3 ON u3.id = a.user_id
+		LEFT JOIN sys_office o4 ON o4.id = a.office_id
+	</sql>
+
+	<!-- 复用的sql片段，where条件部分，使用者：deleteByWhere、countByWhere、selectByWhere、updateByWhere、updateByWhereSelective -->
+	<sql id="Where_Clause">
+	<if test="w!=null and w.e!=null">
+		<if test="w.e.id != null ">AND a.id = #{w.e.id}</if>
+		<if test="w.e.procInsId != null ">AND a.proc_ins_id = #{w.e.procInsId}</if>
+		<if test="w.e.user != null and w.e.user.id != null ">AND a.user_id = #{w.e.user.id}</if>
+		<if test="w.e.office != null and w.e.office.id != null ">AND a.office_id = #{w.e.office.id}</if>
+		<if test="w.e.post != null and w.e.post != ''">AND a.post = #{w.e.post}</if>
+		<if test="w.e.age != null and w.e.age != ''">AND a.age = #{w.e.age}</if>
+		<if test="w.e.edu != null and w.e.edu != ''">AND a.edu = #{w.e.edu}</if>
+		<if test="w.e.content != null and w.e.content != ''">AND a.content = #{w.e.content}</if>
+		<if test="w.e.olda != null and w.e.olda != ''">AND a.olda = #{w.e.olda}</if>
+		<if test="w.e.oldb != null and w.e.oldb != ''">AND a.oldb = #{w.e.oldb}</if>
+		<if test="w.e.oldc != null and w.e.oldc != ''">AND a.oldc = #{w.e.oldc}</if>
+		<if test="w.e.newa != null and w.e.newa != ''">AND a.newa = #{w.e.newa}</if>
+		<if test="w.e.newb != null and w.e.newb != ''">AND a.newb = #{w.e.newb}</if>
+		<if test="w.e.newc != null and w.e.newc != ''">AND a.newc = #{w.e.newc}</if>
+		<if test="w.e.addNum != null and w.e.addNum != ''">AND a.add_num = #{w.e.addNum}</if>
+		<if test="w.e.exeDate != null and w.e.exeDate != ''">AND a.exe_date = #{w.e.exeDate}</if>
+		<if test="w.e.hrText != null and w.e.hrText != ''">AND a.hr_text = #{w.e.hrText}</if>
+		<if test="w.e.leadText != null and w.e.leadText != ''">AND a.lead_text = #{w.e.leadText}</if>
+		<if test="w.e.mainLeadText != null and w.e.mainLeadText != ''">AND a.main_lead_text = #{w.e.mainLeadText}</if>
+		<if test="w.e.createBy != null and w.e.createBy.id != null ">AND a.create_by = #{w.e.createBy.id}</if>
+		<if test="w.e.beginCreateDate != null and w.e.endCreateDate != null ">AND a.create_date BETWEEN #{w.e.beginCreateDate} AND #{w.e.endCreateDate}</if>
+		<if test="w.e.updateBy != null and w.e.updateBy.id != null ">AND a.update_by = #{w.e.updateBy.id}</if>
+		<if test="w.e.beginUpdateDate != null and w.e.endUpdateDate != null ">AND a.update_date BETWEEN #{w.e.beginUpdateDate} AND #{w.e.endUpdateDate}</if>
+		<if test="w.e.remarks != null and w.e.remarks != ''">AND a.remarks = #{w.e.remarks}</if>
+		<if test="w.e.delFlag != null and w.e.delFlag != ''">AND a.del_flag = #{w.e.delFlag}</if>
+	</if>
+	</sql>	
+
+	<!--根据主键查询记录-->
+	<select id="selectById" resultType="TestAudit">
+		SELECT 
+		<include refid="testAuditColumns"/>
+		FROM oa_test_audit a
+		<include refid="testAuditJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 根据多个id查询出一个列表 -->
+	<select id="selectByIdIn" resultType="TestAudit">
+		SELECT
+		<include refid="testAuditColumns"/>
+		FROM oa_test_audit a
+		<where>
+			<choose>
+				<when test="list != null and list.size >0">
+					a.id in
+					<foreach close=")" collection="list" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</when>
+				<otherwise> 1=2 </otherwise>
+			</choose>
+		</where>
+	</select>
+
+	<!--根据条件查询记录集-->
+	<select id="selectByWhere" resultType="TestAudit">
+		SELECT <if test="w!=null and w.distinct">DISTINCT</if>
+		<include refid="testAuditColumns"/>
+		FROM oa_test_audit a
+		<include refid="testAuditJoins"/>
+		<where>
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</where>
+		<choose>
+			<when test="w!=null and w.outputSqlOrderBy !=null">
+				${w.outputSqlOrderBy}
+			</when>
+			<when test="p!=null and p.orderBy != null">
+				ORDER BY ${p.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!--查询所有记录集，无条件-->
+	<select id="selectAll" resultType="TestAudit">
+		SELECT <if test="w!=null and w.distinct">DISTINCT</if>
+		<include refid="testAuditColumns"/>
+		FROM oa_test_audit a
+		<include refid="testAuditJoins"/>
+		<where>
+			<if test="w!=null and w.e!=null">
+				<if test="w.e.delFlag != null and w.e.delFlag != ''">
+				a.del_flag = #{w.e.delFlag}
+				</if>
+			</if>
+		</where>	
+		<choose>
+			<when test="w!=null and w.outputSqlOrderBy !=null">
+				${w.outputSqlOrderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!--插入。并返回自增长的主键值，mysql、oracle都可以-->
+	<insert id="insert" keyProperty="entity.id" keyColumn="id" useGeneratedKeys="true">
+		INSERT INTO oa_test_audit(
+			id,                                                <!-- 编号 number(24)-->
+			proc_ins_id,                                       <!-- 流程实例ID number(24)-->
+			user_id,                                           <!-- 变动用户 number(24)-->
+			office_id,                                         <!-- 归属部门 number(24)-->
+			post,                                              <!-- 岗位 nvarchar2(255)-->
+			age,                                               <!-- 性别 char(1)-->
+			edu,                                               <!-- 学历 nvarchar2(255)-->
+			content,                                           <!-- 调整原因 nvarchar2(255)-->
+			olda,                                              <!-- 现行标准 薪酬档级 varchar2(255)-->
+			oldb,                                              <!-- 现行标准 月工资额 varchar2(255)-->
+			oldc,                                              <!-- 现行标准 年薪总额 varchar2(255)-->
+			newa,                                              <!-- 调整后标准 薪酬档级 varchar2(255)-->
+			newb,                                              <!-- 调整后标准 月工资额 varchar2(255)-->
+			newc,                                              <!-- 调整后标准 年薪总额 varchar2(255)-->
+			add_num,                                           <!-- 月增资 varchar2(255)-->
+			exe_date,                                          <!-- 执行时间 varchar2(255)-->
+			hr_text,                                           <!-- 人力资源部门意见 nvarchar2(255)-->
+			lead_text,                                         <!-- 分管领导意见 nvarchar2(255)-->
+			main_lead_text,                                    <!-- 集团主要领导意见 nvarchar2(255)-->
+			create_by,                                         <!-- 创建者 varchar2(64)-->
+			create_date,                                       <!-- 创建时间 timestamp(6)-->
+			update_by,                                         <!-- 更新者 varchar2(64)-->
+			update_date,                                       <!-- 更新时间 timestamp(6)-->
+			remarks,                                           <!-- 备注信息 nvarchar2(255)-->
+			del_flag                                          <!-- 删除标记 char(1)-->
+
+		) VALUES (
+			<if test="entity.pkMode==1">#{entity.id},</if>
+			<if test="entity.pkMode==2">
+				<if test="entity.dbType$ == 'oracle'">oa_test_audit_seq.nextval,</if>
+				<if test="entity.dbType$ == 'mssql'">null,</if>
+				<if test="entity.dbType$ == 'mysql'">null,</if>
+			</if>
+			#{entity.procInsId},                               <!-- 流程实例ID number(24)-->
+			#{entity.user.id},                                 <!-- 变动用户 number(24)-->
+			#{entity.office.id},                               <!-- 归属部门 number(24)-->
+			#{entity.post},                                    <!-- 岗位 nvarchar2(255)-->
+			#{entity.age},                                     <!-- 性别 char(1)-->
+			#{entity.edu},                                     <!-- 学历 nvarchar2(255)-->
+			#{entity.content},                                 <!-- 调整原因 nvarchar2(255)-->
+			#{entity.olda},                                    <!-- 现行标准 薪酬档级 varchar2(255)-->
+			#{entity.oldb},                                    <!-- 现行标准 月工资额 varchar2(255)-->
+			#{entity.oldc},                                    <!-- 现行标准 年薪总额 varchar2(255)-->
+			#{entity.newa},                                    <!-- 调整后标准 薪酬档级 varchar2(255)-->
+			#{entity.newb},                                    <!-- 调整后标准 月工资额 varchar2(255)-->
+			#{entity.newc},                                    <!-- 调整后标准 年薪总额 varchar2(255)-->
+			#{entity.addNum},                                  <!-- 月增资 varchar2(255)-->
+			#{entity.exeDate},                                 <!-- 执行时间 varchar2(255)-->
+			#{entity.hrText},                                  <!-- 人力资源部门意见 nvarchar2(255)-->
+			#{entity.leadText},                                <!-- 分管领导意见 nvarchar2(255)-->
+			#{entity.mainLeadText},                            <!-- 集团主要领导意见 nvarchar2(255)-->
+			#{entity.createBy.id},                             <!-- 创建者 varchar2(64)-->
+			#{entity.createDate},                              <!-- 创建时间 timestamp(6)-->
+			#{entity.updateBy.id},                             <!-- 更新者 varchar2(64)-->
+			#{entity.updateDate},                              <!-- 更新时间 timestamp(6)-->
+			#{entity.remarks},                                 <!-- 备注信息 nvarchar2(255)-->
+			#{entity.delFlag}                                 <!-- 删除标记 char(1)-->
+
+		)
+	</insert>
+
+	<!--插入,只把非空的值插入到对应的字段。并返回自增长的主键值，mysql、oracle都可以-->
+	<insert id="insertSelective" keyProperty="entity.id" keyColumn="id" useGeneratedKeys="true">
+		INSERT INTO oa_test_audit
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="entity.pkMode==1"><if test="entity.id != null">id,</if></if>
+			<if test="entity.pkMode==2">id,</if>
+			<if test="entity.procInsId != null">proc_ins_id,</if>                              <!-- 流程实例ID number(24)-->
+			<if test="entity.user!= null and entity.user.id!= null ">user_id,</if>                                    <!-- 变动用户 number(24)-->
+			<if test="entity.office!= null and entity.office.id!= null ">office_id,</if>                                <!-- 归属部门 number(24)-->
+			<if test="entity.post != null">post,</if>                                          <!-- 岗位 nvarchar2(255)-->
+			<if test="entity.age != null">age,</if>                                            <!-- 性别 char(1)-->
+			<if test="entity.edu != null">edu,</if>                                            <!-- 学历 nvarchar2(255)-->
+			<if test="entity.content != null">content,</if>                                    <!-- 调整原因 nvarchar2(255)-->
+			<if test="entity.olda != null">olda,</if>                                          <!-- 现行标准 薪酬档级 varchar2(255)-->
+			<if test="entity.oldb != null">oldb,</if>                                          <!-- 现行标准 月工资额 varchar2(255)-->
+			<if test="entity.oldc != null">oldc,</if>                                          <!-- 现行标准 年薪总额 varchar2(255)-->
+			<if test="entity.newa != null">newa,</if>                                          <!-- 调整后标准 薪酬档级 varchar2(255)-->
+			<if test="entity.newb != null">newb,</if>                                          <!-- 调整后标准 月工资额 varchar2(255)-->
+			<if test="entity.newc != null">newc,</if>                                          <!-- 调整后标准 年薪总额 varchar2(255)-->
+			<if test="entity.addNum != null">add_num,</if>                                     <!-- 月增资 varchar2(255)-->
+			<if test="entity.exeDate != null">exe_date,</if>                                   <!-- 执行时间 varchar2(255)-->
+			<if test="entity.hrText != null">hr_text,</if>                                     <!-- 人力资源部门意见 nvarchar2(255)-->
+			<if test="entity.leadText != null">lead_text,</if>                                 <!-- 分管领导意见 nvarchar2(255)-->
+			<if test="entity.mainLeadText != null">main_lead_text,</if>                        <!-- 集团主要领导意见 nvarchar2(255)-->
+			<if test="entity.createBy!= null and entity.createBy.id!= null ">create_by,</if>                              <!-- 创建者 varchar2(64)-->
+			<if test="entity.createDate != null">create_date,</if>                             <!-- 创建时间 timestamp(6)-->
+			<if test="entity.updateBy!= null and entity.updateBy.id!= null ">update_by,</if>                              <!-- 更新者 varchar2(64)-->
+			<if test="entity.updateDate != null">update_date,</if>                             <!-- 更新时间 timestamp(6)-->
+			<if test="entity.remarks != null">remarks,</if>                                    <!-- 备注信息 nvarchar2(255)-->
+			<if test="entity.delFlag != null">del_flag,</if>                                   <!-- 删除标记 char(1)-->
+		</trim>
+		 VALUES 
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="entity.pkMode==1">
+				<if test="entity.id != null">#{entity.id},</if>
+			</if>
+			<if test="entity.pkMode==2">
+				<if test="entity.dbType$ == 'oracle'">oa_test_audit_seq.nextval,</if>
+				<if test="entity.dbType$ == 'mssql'">null,</if>
+				<if test="entity.dbType$ == 'mysql'">null,</if>
+			</if>
+			<if test="entity.procInsId != null">#{entity.procInsId},</if>                                <!-- 流程实例ID number(24)-->
+			<if test="entity.user!= null and entity.user.id!= null ">#{entity.user.id},</if>                                    <!-- 变动用户 number(24)-->
+			<if test="entity.office!= null and entity.office.id!= null ">#{entity.office.id},</if>                                <!-- 归属部门 number(24)-->
+			<if test="entity.post != null">#{entity.post},</if>                                          <!-- 岗位 nvarchar2(255)-->
+			<if test="entity.age != null">#{entity.age},</if>                                            <!-- 性别 char(1)-->
+			<if test="entity.edu != null">#{entity.edu},</if>                                            <!-- 学历 nvarchar2(255)-->
+			<if test="entity.content != null">#{entity.content},</if>                                    <!-- 调整原因 nvarchar2(255)-->
+			<if test="entity.olda != null">#{entity.olda},</if>                                          <!-- 现行标准 薪酬档级 varchar2(255)-->
+			<if test="entity.oldb != null">#{entity.oldb},</if>                                          <!-- 现行标准 月工资额 varchar2(255)-->
+			<if test="entity.oldc != null">#{entity.oldc},</if>                                          <!-- 现行标准 年薪总额 varchar2(255)-->
+			<if test="entity.newa != null">#{entity.newa},</if>                                          <!-- 调整后标准 薪酬档级 varchar2(255)-->
+			<if test="entity.newb != null">#{entity.newb},</if>                                          <!-- 调整后标准 月工资额 varchar2(255)-->
+			<if test="entity.newc != null">#{entity.newc},</if>                                          <!-- 调整后标准 年薪总额 varchar2(255)-->
+			<if test="entity.addNum != null">#{entity.addNum},</if>                                      <!-- 月增资 varchar2(255)-->
+			<if test="entity.exeDate != null">#{entity.exeDate},</if>                                    <!-- 执行时间 varchar2(255)-->
+			<if test="entity.hrText != null">#{entity.hrText},</if>                                      <!-- 人力资源部门意见 nvarchar2(255)-->
+			<if test="entity.leadText != null">#{entity.leadText},</if>                                  <!-- 分管领导意见 nvarchar2(255)-->
+			<if test="entity.mainLeadText != null">#{entity.mainLeadText},</if>                          <!-- 集团主要领导意见 nvarchar2(255)-->
+			<if test="entity.createBy!= null and entity.createBy.id!= null ">#{entity.createBy.id},</if>                            <!-- 创建者 varchar2(64)-->
+			<if test="entity.createDate != null">#{entity.createDate},</if>                              <!-- 创建时间 timestamp(6)-->
+			<if test="entity.updateBy!= null and entity.updateBy.id!= null ">#{entity.updateBy.id},</if>                            <!-- 更新者 varchar2(64)-->
+			<if test="entity.updateDate != null">#{entity.updateDate},</if>                              <!-- 更新时间 timestamp(6)-->
+			<if test="entity.remarks != null">#{entity.remarks},</if>                                    <!-- 备注信息 nvarchar2(255)-->
+			<if test="entity.delFlag != null">#{entity.delFlag},</if>                                    <!-- 删除标记 char(1)-->
+		</trim>
+	</insert>
+
+	<!-- 根据主键更新记录-->
+	<update id="updateById">
+		UPDATE oa_test_audit SET
+			proc_ins_id = #{entity.procInsId},                              <!-- 流程实例ID number(24)-->
+			user_id = #{entity.user.id},                                    <!-- 变动用户 number(24)-->
+			office_id = #{entity.office.id},                                <!-- 归属部门 number(24)-->
+			post = #{entity.post},                                          <!-- 岗位 nvarchar2(255)-->
+			age = #{entity.age},                                            <!-- 性别 char(1)-->
+			edu = #{entity.edu},                                            <!-- 学历 nvarchar2(255)-->
+			content = #{entity.content},                                    <!-- 调整原因 nvarchar2(255)-->
+			olda = #{entity.olda},                                          <!-- 现行标准 薪酬档级 varchar2(255)-->
+			oldb = #{entity.oldb},                                          <!-- 现行标准 月工资额 varchar2(255)-->
+			oldc = #{entity.oldc},                                          <!-- 现行标准 年薪总额 varchar2(255)-->
+			newa = #{entity.newa},                                          <!-- 调整后标准 薪酬档级 varchar2(255)-->
+			newb = #{entity.newb},                                          <!-- 调整后标准 月工资额 varchar2(255)-->
+			newc = #{entity.newc},                                          <!-- 调整后标准 年薪总额 varchar2(255)-->
+			add_num = #{entity.addNum},                                     <!-- 月增资 varchar2(255)-->
+			exe_date = #{entity.exeDate},                                   <!-- 执行时间 varchar2(255)-->
+			hr_text = #{entity.hrText},                                     <!-- 人力资源部门意见 nvarchar2(255)-->
+			lead_text = #{entity.leadText},                                 <!-- 分管领导意见 nvarchar2(255)-->
+			main_lead_text = #{entity.mainLeadText},                        <!-- 集团主要领导意见 nvarchar2(255)-->
+			create_by = #{entity.createBy.id},                              <!-- 创建者 varchar2(64)-->
+			create_date = #{entity.createDate},                             <!-- 创建时间 timestamp(6)-->
+			update_by = #{entity.updateBy.id},                              <!-- 更新者 varchar2(64)-->
+			update_date = #{entity.updateDate},                             <!-- 更新时间 timestamp(6)-->
+			remarks = #{entity.remarks}                                  <!-- 备注信息 nvarchar2(255)-->
+
+		WHERE id = #{entity.id}
+	</update>
+
+	<!-- 根据条件更新记录-->
+	<update id="updateByWhere">
+		UPDATE oa_test_audit a SET
+			proc_ins_id = #{entity.procInsId},                              <!-- 流程实例ID number(24)-->
+			user_id = #{entity.user.id},                                    <!-- 变动用户 number(24)-->
+			office_id = #{entity.office.id},                                <!-- 归属部门 number(24)-->
+			post = #{entity.post},                                          <!-- 岗位 nvarchar2(255)-->
+			age = #{entity.age},                                            <!-- 性别 char(1)-->
+			edu = #{entity.edu},                                            <!-- 学历 nvarchar2(255)-->
+			content = #{entity.content},                                    <!-- 调整原因 nvarchar2(255)-->
+			olda = #{entity.olda},                                          <!-- 现行标准 薪酬档级 varchar2(255)-->
+			oldb = #{entity.oldb},                                          <!-- 现行标准 月工资额 varchar2(255)-->
+			oldc = #{entity.oldc},                                          <!-- 现行标准 年薪总额 varchar2(255)-->
+			newa = #{entity.newa},                                          <!-- 调整后标准 薪酬档级 varchar2(255)-->
+			newb = #{entity.newb},                                          <!-- 调整后标准 月工资额 varchar2(255)-->
+			newc = #{entity.newc},                                          <!-- 调整后标准 年薪总额 varchar2(255)-->
+			add_num = #{entity.addNum},                                     <!-- 月增资 varchar2(255)-->
+			exe_date = #{entity.exeDate},                                   <!-- 执行时间 varchar2(255)-->
+			hr_text = #{entity.hrText},                                     <!-- 人力资源部门意见 nvarchar2(255)-->
+			lead_text = #{entity.leadText},                                 <!-- 分管领导意见 nvarchar2(255)-->
+			main_lead_text = #{entity.mainLeadText},                        <!-- 集团主要领导意见 nvarchar2(255)-->
+			create_by = #{entity.createBy.id},                              <!-- 创建者 varchar2(64)-->
+			create_date = #{entity.createDate},                             <!-- 创建时间 timestamp(6)-->
+			update_by = #{entity.updateBy.id},                              <!-- 更新者 varchar2(64)-->
+			update_date = #{entity.updateDate},                             <!-- 更新时间 timestamp(6)-->
+			remarks = #{entity.remarks}                                    <!-- 备注信息 nvarchar2(255)-->
+
+		where  <!-- 防止无where条件时，删除全表、更新全表 -->
+		<trim prefixOverrides="AND |OR ">
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</trim>
+	</update>
+
+	<!-- 根据主键更新记录,只把非空的值更到对应的字段-->
+	<update id="updateByIdSelective">
+		UPDATE oa_test_audit
+		<set>
+			<if test="entity.procInsId != null">proc_ins_id = #{entity.procInsId},</if>                                         <!-- 流程实例ID number(24)-->
+			<if test="entity.user!= null and entity.user.id!= null ">user_id = #{entity.user.id},</if>                                                 <!-- 变动用户 number(24)-->
+			<if test="entity.office!= null and entity.office.id!= null ">office_id = #{entity.office.id},</if>                                           <!-- 归属部门 number(24)-->
+			<if test="entity.post != null">post = #{entity.post},</if>                                                          <!-- 岗位 nvarchar2(255)-->
+			<if test="entity.age != null">age = #{entity.age},</if>                                                             <!-- 性别 char(1)-->
+			<if test="entity.edu != null">edu = #{entity.edu},</if>                                                             <!-- 学历 nvarchar2(255)-->
+			<if test="entity.content != null">content = #{entity.content},</if>                                                 <!-- 调整原因 nvarchar2(255)-->
+			<if test="entity.olda != null">olda = #{entity.olda},</if>                                                          <!-- 现行标准 薪酬档级 varchar2(255)-->
+			<if test="entity.oldb != null">oldb = #{entity.oldb},</if>                                                          <!-- 现行标准 月工资额 varchar2(255)-->
+			<if test="entity.oldc != null">oldc = #{entity.oldc},</if>                                                          <!-- 现行标准 年薪总额 varchar2(255)-->
+			<if test="entity.newa != null">newa = #{entity.newa},</if>                                                          <!-- 调整后标准 薪酬档级 varchar2(255)-->
+			<if test="entity.newb != null">newb = #{entity.newb},</if>                                                          <!-- 调整后标准 月工资额 varchar2(255)-->
+			<if test="entity.newc != null">newc = #{entity.newc},</if>                                                          <!-- 调整后标准 年薪总额 varchar2(255)-->
+			<if test="entity.addNum != null">add_num = #{entity.addNum},</if>                                                   <!-- 月增资 varchar2(255)-->
+			<if test="entity.exeDate != null">exe_date = #{entity.exeDate},</if>                                                <!-- 执行时间 varchar2(255)-->
+			<if test="entity.hrText != null">hr_text = #{entity.hrText},</if>                                                   <!-- 人力资源部门意见 nvarchar2(255)-->
+			<if test="entity.leadText != null">lead_text = #{entity.leadText},</if>                                             <!-- 分管领导意见 nvarchar2(255)-->
+			<if test="entity.mainLeadText != null">main_lead_text = #{entity.mainLeadText},</if>                                <!-- 集团主要领导意见 nvarchar2(255)-->
+			<if test="entity.createBy!= null and entity.createBy.id!= null ">create_by = #{entity.createBy.id},</if>                                       <!-- 创建者 varchar2(64)-->
+			<if test="entity.createDate != null">create_date = #{entity.createDate},</if>                                       <!-- 创建时间 timestamp(6)-->
+			<if test="entity.updateBy!= null and entity.updateBy.id!= null ">update_by = #{entity.updateBy.id},</if>                                       <!-- 更新者 varchar2(64)-->
+			<if test="entity.updateDate != null">update_date = #{entity.updateDate},</if>                                       <!-- 更新时间 timestamp(6)-->
+			<if test="entity.remarks != null">remarks = #{entity.remarks},</if>                                                 <!-- 备注信息 nvarchar2(255)-->
+		</set>
+		WHERE id = #{entity.id}
+	</update>
+
+	<!-- 根据条件更新记录,只把非空的值更到对应的字段-->
+	<update id="updateByWhereSelective">
+		UPDATE oa_test_audit a
+		<set>
+			<if test="entity.procInsId != null">proc_ins_id = #{entity.procInsId},</if>                                         <!-- 流程实例ID number(24)-->
+			<if test="entity.user!= null and entity.user.id!= null ">user_id = #{entity.user.id},</if>                                                 <!-- 变动用户 number(24)-->
+			<if test="entity.office!= null and entity.office.id!= null ">office_id = #{entity.office.id},</if>                                           <!-- 归属部门 number(24)-->
+			<if test="entity.post != null">post = #{entity.post},</if>                                                          <!-- 岗位 nvarchar2(255)-->
+			<if test="entity.age != null">age = #{entity.age},</if>                                                             <!-- 性别 char(1)-->
+			<if test="entity.edu != null">edu = #{entity.edu},</if>                                                             <!-- 学历 nvarchar2(255)-->
+			<if test="entity.content != null">content = #{entity.content},</if>                                                 <!-- 调整原因 nvarchar2(255)-->
+			<if test="entity.olda != null">olda = #{entity.olda},</if>                                                          <!-- 现行标准 薪酬档级 varchar2(255)-->
+			<if test="entity.oldb != null">oldb = #{entity.oldb},</if>                                                          <!-- 现行标准 月工资额 varchar2(255)-->
+			<if test="entity.oldc != null">oldc = #{entity.oldc},</if>                                                          <!-- 现行标准 年薪总额 varchar2(255)-->
+			<if test="entity.newa != null">newa = #{entity.newa},</if>                                                          <!-- 调整后标准 薪酬档级 varchar2(255)-->
+			<if test="entity.newb != null">newb = #{entity.newb},</if>                                                          <!-- 调整后标准 月工资额 varchar2(255)-->
+			<if test="entity.newc != null">newc = #{entity.newc},</if>                                                          <!-- 调整后标准 年薪总额 varchar2(255)-->
+			<if test="entity.addNum != null">add_num = #{entity.addNum},</if>                                                   <!-- 月增资 varchar2(255)-->
+			<if test="entity.exeDate != null">exe_date = #{entity.exeDate},</if>                                                <!-- 执行时间 varchar2(255)-->
+			<if test="entity.hrText != null">hr_text = #{entity.hrText},</if>                                                   <!-- 人力资源部门意见 nvarchar2(255)-->
+			<if test="entity.leadText != null">lead_text = #{entity.leadText},</if>                                             <!-- 分管领导意见 nvarchar2(255)-->
+			<if test="entity.mainLeadText != null">main_lead_text = #{entity.mainLeadText},</if>                                <!-- 集团主要领导意见 nvarchar2(255)-->
+			<if test="entity.createBy!= null and entity.createBy.id!= null ">create_by = #{entity.createBy.id},</if>                                       <!-- 创建者 varchar2(64)-->
+			<if test="entity.createDate != null">create_date = #{entity.createDate},</if>                                       <!-- 创建时间 timestamp(6)-->
+			<if test="entity.updateBy!= null and entity.updateBy.id!= null ">update_by = #{entity.updateBy.id},</if>                                       <!-- 更新者 varchar2(64)-->
+			<if test="entity.updateDate != null">update_date = #{entity.updateDate},</if>                                       <!-- 更新时间 timestamp(6)-->
+			<if test="entity.remarks != null">remarks = #{entity.remarks},</if>                                                 <!-- 备注信息 nvarchar2(255)-->
+		</set>
+		where  <!-- 防止无where条件时，删除全表、更新全表 -->
+		<trim prefixOverrides="AND |OR ">
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</trim>
+	</update>
+
+	<!-- 根据主键删除记录 -->
+	<update id="deleteById">
+		UPDATE oa_test_audit SET 
+		del_flag = ${@com.sicheng.common.persistence.BaseEntity@DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 根据多个id删除记录 -->
+	<update id="deleteByIdIn">
+		DELETE FROM oa_test_audit a
+		<where>
+			<choose>
+				<when test="list != null and list.size >0">
+					a.id in
+					<foreach close=")" collection="list" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</when>
+				<otherwise> 1=2 </otherwise>
+			</choose>
+		</where>
+	</update>
+	
+	<!-- 根据条件删除记录 -->
+	<update id="deleteByWhere">
+		DELETE FROM oa_test_audit a
+		where  <!-- 防止无where条件时，删除全表、更新全表 -->
+		<trim prefixOverrides="AND |OR ">
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</trim>
+	</update>
+
+	<!-- 根据条件查询记录总数 -->
+	<select id="countByWhere" resultType="java.lang.Integer">
+		SELECT <if test="w!=null and w.distinct">DISTINCT</if> COUNT(*) FROM oa_test_audit a
+		<where>
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</where>
+	</select>
+
+</mapper>

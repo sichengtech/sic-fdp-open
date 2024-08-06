@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sicheng.admin.test.dao.TestDataChildJoinDao1线2表JOIN$test_data_child$test_data_main">
+	<!-- 多表join查询禁止使用mybatis二级缓存,强行开启会导致脏数据 -->  
+	<!-- 关联了2张表 test_data_child(a), test_data_main(b), Wrapper是SQL语句where条件的组装工具类，组装Where条件时要使用到表的别名，请来这查看表别名。-->
+	<!-- 关系映射1 -->	
+	<resultMap id="relation_mapping_a" type="TestDataChild">	
+		<id column="a#id" property="id" />	
+		<result column="a#testDataMainId" property="testDataMainId" />	
+		<result column="a#name" property="name" />	
+		<result column="a#createBy.id" property="createBy.id" />	
+		<result column="a#createDate" property="createDate" />	
+		<result column="a#updateBy.id" property="updateBy.id" />	
+		<result column="a#updateDate" property="updateDate" />	
+		<result column="a#remarks" property="remarks" />	
+		<result column="a#delFlag" property="delFlag" />	
+		<!-- 指向主表（多对一、一对一） -->	
+		<association property="testDataMain" javaType="TestDataMain" resultMap="relation_mapping_b"/>	
+	</resultMap>	
+	<!-- 关系映射2 -->	
+	<resultMap id="relation_mapping_b" type="TestDataMain">	
+		<id column="b#id" property="id" />	
+		<result column="b#user.id" property="user.id" />	
+		<result column="b#office.id" property="office.id" />	
+		<result column="b#area.id" property="area.id" />	
+		<result column="b#name" property="name" />	
+		<result column="b#sex" property="sex" />	
+		<result column="b#inDate" property="inDate" />	
+		<result column="b#createBy.id" property="createBy.id" />	
+		<result column="b#createDate" property="createDate" />	
+		<result column="b#updateBy.id" property="updateBy.id" />	
+		<result column="b#updateDate" property="updateDate" />	
+		<result column="b#remarks" property="remarks" />	
+		<result column="b#delFlag" property="delFlag" />	
+	</resultMap>	
+
+    
+	<!-- 全部字段 -->
+	<sql id="testDataChildColumnsJoin">
+	<trim suffixOverrides=",">
+		a.id AS "a#id",                                                        <!-- 编号 bigint(20)-->
+		a.test_data_main_id AS "a#testDataMainId",                             <!-- 业务主表ID bigint(20)-->
+		a.name AS "a#name",                                                    <!-- 名称 varchar(100)-->
+		a.create_by AS "a#createBy.id",                                        <!-- 创建者 varchar(64)-->
+		a.create_date AS "a#createDate",                                       <!-- 创建时间 datetime-->
+		a.update_by AS "a#updateBy.id",                                        <!-- 更新者 varchar(64)-->
+		a.update_date AS "a#updateDate",                                       <!-- 更新时间 datetime-->
+		a.remarks AS "a#remarks",                                              <!-- 备注信息 varchar(255)-->
+		a.del_flag AS "a#delFlag",                                             <!-- 删除标记 char(1)-->
+		b.id AS "b#id",                                                        <!-- 编号 bigint(20)-->
+		b.user_id AS "b#user.id",                                              <!-- 归属用户 bigint(20)-->
+		b.office_id AS "b#office.id",                                          <!-- 归属部门 bigint(20)-->
+		b.area_id AS "b#area.id",                                              <!-- 归属区域 varchar(64)-->
+		b.name AS "b#name",                                                    <!-- 名称 varchar(100)-->
+		b.sex AS "b#sex",                                                      <!-- 性别 char(1)-->
+		b.in_date AS "b#inDate",                                               <!-- 加入日期 datetime-->
+		b.create_by AS "b#createBy.id",                                        <!-- 创建者 varchar(64)-->
+		b.create_date AS "b#createDate",                                       <!-- 创建时间 datetime-->
+		b.update_by AS "b#updateBy.id",                                        <!-- 更新者 varchar(64)-->
+		b.update_date AS "b#updateDate",                                       <!-- 更新时间 datetime-->
+		b.remarks AS "b#remarks",                                              <!-- 备注信息 varchar(255)-->
+		b.del_flag AS "b#delFlag",                                             <!-- 删除标记 char(1)-->
+
+	</trim>
+	</sql>
+
+	<!-- 关联表 -->
+	<sql id="testDataChildJoins2">
+        	LEFT JOIN test_data_main b ON b.id = a.test_data_main_id
+	</sql>
+
+	<!-- 复用的sql片段，where条件部分，使用者：joinSelectByWhere、joinCountByWhere -->
+	<!-- 这里只有左表(主表)的where的条件，无其它关联表的字段。就是这样设计的，因为一对多的情况实体间有关联是List不好带参数。复杂的请使用Wrapper -->
+	<sql id="Where_Clause">
+	<if test="w!=null and w.e!=null">
+		<bind name="c" value="w.e"/>
+		<if test="c.id != null ">AND a.id = #{c.id}</if>
+		<if test="c.testDataMainId != null ">AND a.test_data_main_id = #{c.testDataMainId}</if>
+		<if test="c.name != null and c.name != ''">AND a.name = #{c.name}</if>
+		<if test="c.createBy != null and c.createBy.id != null ">AND a.create_by = #{c.createBy.id}</if>
+		<if test="c.beginCreateDate != null and c.endCreateDate != null ">AND a.create_date BETWEEN #{c.beginCreateDate} AND #{c.endCreateDate}</if>
+		<if test="c.updateBy != null and c.updateBy.id != null ">AND a.update_by = #{c.updateBy.id}</if>
+		<if test="c.beginUpdateDate != null and c.endUpdateDate != null ">AND a.update_date BETWEEN #{c.beginUpdateDate} AND #{c.endUpdateDate}</if>
+		<if test="c.remarks != null and c.remarks != ''">AND a.remarks = #{c.remarks}</if>
+		<if test="c.delFlag != null and c.delFlag != ''">AND a.del_flag = #{c.delFlag}</if>
+	</if>
+	</sql>	
+
+	<!--根据主键查询记录-->
+	<select id="joinSelectById" resultMap="relation_mapping_a">
+		SELECT 
+		<include refid="testDataChildColumnsJoin"/>
+		FROM test_data_child a
+		<include refid="testDataChildJoins2"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 根据多个id查询出一个列表 -->
+	<select id="joinSelectByIdIn" resultMap="relation_mapping_a">
+		SELECT 
+		<include refid="testDataChildColumnsJoin"/>
+		FROM test_data_child a
+        <include refid="testDataChildJoins2"/>
+		<where>
+			<choose>
+				<when test="list != null and list.size >0">
+					a.id in
+					<foreach close=")" collection="list" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</when>
+				<otherwise> 1=2 </otherwise>
+			</choose>
+		</where>
+	</select>
+
+	<!--根据条件查询记录集 -->
+	<!--使用了暗示语法/*paged_offset#pk=a.id*/来启用“分页二次偏移量算法”，使一对多join关联可以正确的计算分页了-->
+	<select id="joinSelectByWhere" resultMap="relation_mapping_a">
+		SELECT <if test="w!=null and w.distinct">DISTINCT</if> 
+		<include refid="testDataChildColumnsJoin"/>
+		FROM test_data_child a
+		<include refid="testDataChildJoins2"/>
+		<where>
+			<if test="w!=null">
+			<include refid="Where_Clause"/>
+			${w.outputSqlWhere}
+			</if>
+		</where>
+		<choose>
+			<when test="w!=null and w.outputSqlOrderBy !=null">
+				${w.outputSqlOrderBy}
+			</when>
+			<when test="p!=null and p.orderBy != null">
+				ORDER BY ${p.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!--查询所有记录集，无条件-->
+	<select id="joinSelectAll" resultMap="relation_mapping_a">
+		SELECT <if test="w!=null and w.distinct">DISTINCT</if>
+		<include refid="testDataChildColumnsJoin"/>
+		FROM test_data_child a
+		<include refid="testDataChildJoins2"/>
+		<where>
+			<if test="w!=null and w.e!=null">
+				<if test="w.e.delFlag != null and w.e.delFlag != ''">
+				a.del_flag = #{w.e.delFlag}
+				</if>
+			</if>
+		</where>	
+		<choose>
+			<when test="w!=null and w.outputSqlOrderBy !=null">
+				${w.outputSqlOrderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+
+	<!-- 根据条件查询记录总数 -->
+	<select id="joinCountByWhere" resultType="java.lang.Integer">
+		SELECT <if test="w!=null and w.distinct">DISTINCT</if> COUNT(*) FROM test_data_child a
+        <include refid="testDataChildJoins2"/>
+		<where>
+			<if test="w!=null">
+			<include refid="Where_Clause"/>
+			${w.outputSqlWhere}
+			</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sicheng.admin.oa.dao.OaNotifyDao">
+
+	<!-- 全部字段 -->
+	<sql id="oaNotifyColumns">
+		a.id AS "id",                                                        <!-- 编号 number(24)-->
+		a.type AS "type",                                                    <!-- 类型 char(1)-->
+		a.title AS "title",                                                  <!-- 标题 nvarchar2(200)-->
+		a.content AS "content",                                              <!-- 内容 nvarchar2(2000)-->
+		a.files AS "files",                                                  <!-- 附件 nvarchar2(2000)-->
+		a.status AS "status",                                                <!-- 状态 char(1)-->
+		a.create_by AS "createBy.id",                                        <!-- 创建者 varchar2(64)-->
+		a.create_date AS "createDate",                                       <!-- 创建时间 timestamp(6)-->
+		a.update_by AS "updateBy.id",                                        <!-- 更新者 varchar2(64)-->
+		a.update_date AS "updateDate",                                       <!-- 更新时间 timestamp(6)-->
+		a.remarks AS "remarks",                                              <!-- 备注信息 nvarchar2(255)-->
+		a.del_flag AS "delFlag"                                             <!-- 删除标记 char(1)-->
+		
+	</sql>
+
+	<!-- 关联表 -->
+	<sql id="oaNotifyJoins">
+	</sql>
+
+	<!-- 复用的sql片段，where条件部分，使用者：deleteByWhere、countByWhere、selectByWhere、updateByWhere、updateByWhereSelective -->
+	<sql id="Where_Clause">
+	<if test="w!=null and w.e!=null">
+		<if test="w.e.id != null ">AND a.id = #{w.e.id}</if>
+		<if test="w.e.type != null and w.e.type != ''">AND a.type = #{w.e.type}</if>
+		<if test="w.e.title != null and w.e.title != ''">				
+			<if test="w.e.dbType$ == 'oracle'">AND lower(a.title) LIKE '%'||lower(#{w.e.title})||'%'</if>
+			<if test="w.e.dbType$ == 'mssql'">AND a.title LIKE '%'+#{w.e.title}+'%'</if>
+			<if test="w.e.dbType$ == 'mysql'">AND a.title LIKE concat('%',#{w.e.title},'%')</if>
+		</if>
+		<if test="w.e.content != null and w.e.content != ''">AND a.content = #{w.e.content}</if>
+		<if test="w.e.files != null and w.e.files != ''">AND a.files = #{w.e.files}</if>
+		<if test="w.e.status != null and w.e.status != ''">AND a.status = #{w.e.status}</if>
+		<if test="w.e.createBy != null and w.e.createBy.id != null ">AND a.create_by = #{w.e.createBy.id}</if>
+		<if test="w.e.beginCreateDate != null and w.e.endCreateDate != null ">AND a.create_date BETWEEN #{w.e.beginCreateDate} AND #{w.e.endCreateDate}</if>
+		<if test="w.e.updateBy != null and w.e.updateBy.id != null ">AND a.update_by = #{w.e.updateBy.id}</if>
+		<if test="w.e.beginUpdateDate != null and w.e.endUpdateDate != null ">AND a.update_date BETWEEN #{w.e.beginUpdateDate} AND #{w.e.endUpdateDate}</if>
+		<if test="w.e.remarks != null and w.e.remarks != ''">AND a.remarks = #{w.e.remarks}</if>
+		<if test="w.e.delFlag != null and w.e.delFlag != ''">AND a.del_flag = #{w.e.delFlag}</if>
+	</if>
+	</sql>	
+
+	<!--根据主键查询记录-->
+	<select id="selectById" resultType="OaNotify">
+		SELECT 
+		<include refid="oaNotifyColumns"/>
+		FROM oa_notify a
+		<include refid="oaNotifyJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 根据多个id查询出一个列表 -->
+	<select id="selectByIdIn" resultType="OaNotify">
+		SELECT
+		<include refid="oaNotifyColumns"/>
+		FROM oa_notify a
+		<where>
+			<choose>
+				<when test="list != null and list.size >0">
+					a.id in
+					<foreach close=")" collection="list" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</when>
+				<otherwise> 1=2 </otherwise>
+			</choose>
+		</where>
+	</select>
+
+	<!--根据条件查询记录集-->
+	<select id="selectByWhere" resultType="OaNotify">
+		SELECT <if test="w!=null and w.distinct">DISTINCT</if>
+		<include refid="oaNotifyColumns"/>
+		FROM oa_notify a
+		<include refid="oaNotifyJoins"/>
+		<where>
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</where>
+		<choose>
+			<when test="w!=null and w.outputSqlOrderBy !=null">
+				${w.outputSqlOrderBy}
+			</when>
+			<when test="p!=null and p.orderBy != null">
+				ORDER BY ${p.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!--查询所有记录集，无条件-->
+	<select id="selectAll" resultType="OaNotify">
+		SELECT <if test="w!=null and w.distinct">DISTINCT</if>
+		<include refid="oaNotifyColumns"/>
+		FROM oa_notify a
+		<include refid="oaNotifyJoins"/>
+		<where>
+			<if test="w!=null and w.e!=null">
+				<if test="w.e.delFlag != null and w.e.delFlag != ''">
+				a.del_flag = #{w.e.delFlag}
+				</if>
+			</if>
+		</where>	
+		<choose>
+			<when test="w!=null and w.outputSqlOrderBy !=null">
+				${w.outputSqlOrderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!--插入。并返回自增长的主键值，mysql、oracle都可以-->
+	<insert id="insert" keyProperty="entity.id" keyColumn="id" useGeneratedKeys="true">
+		INSERT INTO oa_notify(
+			id,                                                <!-- 编号 number(24)-->
+			type,                                              <!-- 类型 char(1)-->
+			title,                                             <!-- 标题 nvarchar2(200)-->
+			content,                                           <!-- 内容 nvarchar2(2000)-->
+			files,                                             <!-- 附件 nvarchar2(2000)-->
+			status,                                            <!-- 状态 char(1)-->
+			create_by,                                         <!-- 创建者 varchar2(64)-->
+			create_date,                                       <!-- 创建时间 timestamp(6)-->
+			update_by,                                         <!-- 更新者 varchar2(64)-->
+			update_date,                                       <!-- 更新时间 timestamp(6)-->
+			remarks,                                           <!-- 备注信息 nvarchar2(255)-->
+			del_flag                                          <!-- 删除标记 char(1)-->
+
+		) VALUES (
+			<if test="entity.pkMode==1">#{entity.id},</if>
+			<if test="entity.pkMode==2">
+				<if test="entity.dbType$ == 'oracle'">oa_notify_seq.nextval,</if>
+				<if test="entity.dbType$ == 'mssql'">null,</if>
+				<if test="entity.dbType$ == 'mysql'">null,</if>
+			</if>
+			#{entity.type},                                    <!-- 类型 char(1)-->
+			#{entity.title},                                   <!-- 标题 nvarchar2(200)-->
+			#{entity.content},                                 <!-- 内容 nvarchar2(2000)-->
+			#{entity.files},                                   <!-- 附件 nvarchar2(2000)-->
+			#{entity.status},                                  <!-- 状态 char(1)-->
+			#{entity.createBy.id},                             <!-- 创建者 varchar2(64)-->
+			#{entity.createDate},                              <!-- 创建时间 timestamp(6)-->
+			#{entity.updateBy.id},                             <!-- 更新者 varchar2(64)-->
+			#{entity.updateDate},                              <!-- 更新时间 timestamp(6)-->
+			#{entity.remarks},                                 <!-- 备注信息 nvarchar2(255)-->
+			#{entity.delFlag}                                 <!-- 删除标记 char(1)-->
+
+		)
+	</insert>
+
+	<!--插入,只把非空的值插入到对应的字段。并返回自增长的主键值，mysql、oracle都可以-->
+	<insert id="insertSelective" keyProperty="entity.id" keyColumn="id" useGeneratedKeys="true">
+		INSERT INTO oa_notify
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="entity.pkMode==1"><if test="entity.id != null">id,</if></if>
+			<if test="entity.pkMode==2">id,</if>
+			<if test="entity.type != null">type,</if>                                          <!-- 类型 char(1)-->
+			<if test="entity.title != null">title,</if>                                        <!-- 标题 nvarchar2(200)-->
+			<if test="entity.content != null">content,</if>                                    <!-- 内容 nvarchar2(2000)-->
+			<if test="entity.files != null">files,</if>                                        <!-- 附件 nvarchar2(2000)-->
+			<if test="entity.status != null">status,</if>                                      <!-- 状态 char(1)-->
+			<if test="entity.createBy!= null and entity.createBy.id!= null ">create_by,</if>                              <!-- 创建者 varchar2(64)-->
+			<if test="entity.createDate != null">create_date,</if>                             <!-- 创建时间 timestamp(6)-->
+			<if test="entity.updateBy!= null and entity.updateBy.id!= null ">update_by,</if>                              <!-- 更新者 varchar2(64)-->
+			<if test="entity.updateDate != null">update_date,</if>                             <!-- 更新时间 timestamp(6)-->
+			<if test="entity.remarks != null">remarks,</if>                                    <!-- 备注信息 nvarchar2(255)-->
+			<if test="entity.delFlag != null">del_flag,</if>                                   <!-- 删除标记 char(1)-->
+		</trim>
+		 VALUES 
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="entity.pkMode==1">
+				<if test="entity.id != null">#{entity.id},</if>
+			</if>
+			<if test="entity.pkMode==2">
+				<if test="entity.dbType$ == 'oracle'">oa_notify_seq.nextval,</if>
+				<if test="entity.dbType$ == 'mssql'">null,</if>
+				<if test="entity.dbType$ == 'mysql'">null,</if>
+			</if>
+			<if test="entity.type != null">#{entity.type},</if>                                          <!-- 类型 char(1)-->
+			<if test="entity.title != null">#{entity.title},</if>                                        <!-- 标题 nvarchar2(200)-->
+			<if test="entity.content != null">#{entity.content},</if>                                    <!-- 内容 nvarchar2(2000)-->
+			<if test="entity.files != null">#{entity.files},</if>                                        <!-- 附件 nvarchar2(2000)-->
+			<if test="entity.status != null">#{entity.status},</if>                                      <!-- 状态 char(1)-->
+			<if test="entity.createBy!= null and entity.createBy.id!= null ">#{entity.createBy.id},</if>                            <!-- 创建者 varchar2(64)-->
+			<if test="entity.createDate != null">#{entity.createDate},</if>                              <!-- 创建时间 timestamp(6)-->
+			<if test="entity.updateBy!= null and entity.updateBy.id!= null ">#{entity.updateBy.id},</if>                            <!-- 更新者 varchar2(64)-->
+			<if test="entity.updateDate != null">#{entity.updateDate},</if>                              <!-- 更新时间 timestamp(6)-->
+			<if test="entity.remarks != null">#{entity.remarks},</if>                                    <!-- 备注信息 nvarchar2(255)-->
+			<if test="entity.delFlag != null">#{entity.delFlag},</if>                                    <!-- 删除标记 char(1)-->
+		</trim>
+	</insert>
+
+	<!-- 根据主键更新记录-->
+	<update id="updateById">
+		UPDATE oa_notify SET
+			type = #{entity.type},                                          <!-- 类型 char(1)-->
+			title = #{entity.title},                                        <!-- 标题 nvarchar2(200)-->
+			content = #{entity.content},                                    <!-- 内容 nvarchar2(2000)-->
+			files = #{entity.files},                                        <!-- 附件 nvarchar2(2000)-->
+			status = #{entity.status},                                      <!-- 状态 char(1)-->
+			create_by = #{entity.createBy.id},                              <!-- 创建者 varchar2(64)-->
+			create_date = #{entity.createDate},                             <!-- 创建时间 timestamp(6)-->
+			update_by = #{entity.updateBy.id},                              <!-- 更新者 varchar2(64)-->
+			update_date = #{entity.updateDate},                             <!-- 更新时间 timestamp(6)-->
+			remarks = #{entity.remarks}                                    <!-- 备注信息 nvarchar2(255)-->
+
+		WHERE id = #{entity.id}
+	</update>
+
+	<!-- 根据条件更新记录-->
+	<update id="updateByWhere">
+		UPDATE oa_notify a SET
+			type = #{entity.type},                                          <!-- 类型 char(1)-->
+			title = #{entity.title},                                        <!-- 标题 nvarchar2(200)-->
+			content = #{entity.content},                                    <!-- 内容 nvarchar2(2000)-->
+			files = #{entity.files},                                        <!-- 附件 nvarchar2(2000)-->
+			status = #{entity.status},                                      <!-- 状态 char(1)-->
+			create_by = #{entity.createBy.id},                              <!-- 创建者 varchar2(64)-->
+			create_date = #{entity.createDate},                             <!-- 创建时间 timestamp(6)-->
+			update_by = #{entity.updateBy.id},                              <!-- 更新者 varchar2(64)-->
+			update_date = #{entity.updateDate},                             <!-- 更新时间 timestamp(6)-->
+			remarks = #{entity.remarks}                                    <!-- 备注信息 nvarchar2(255)-->
+
+		where  <!-- 防止无where条件时，删除全表、更新全表 -->
+		<trim prefixOverrides="AND |OR ">
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</trim>
+	</update>
+
+	<!-- 根据主键更新记录,只把非空的值更到对应的字段-->
+	<update id="updateByIdSelective">
+		UPDATE oa_notify
+		<set>
+			<if test="entity.type != null">type = #{entity.type},</if>                                                          <!-- 类型 char(1)-->
+			<if test="entity.title != null">title = #{entity.title},</if>                                                       <!-- 标题 nvarchar2(200)-->
+			<if test="entity.content != null">content = #{entity.content},</if>                                                 <!-- 内容 nvarchar2(2000)-->
+			<if test="entity.files != null">files = #{entity.files},</if>                                                       <!-- 附件 nvarchar2(2000)-->
+			<if test="entity.status != null">status = #{entity.status},</if>                                                    <!-- 状态 char(1)-->
+			<if test="entity.createBy!= null and entity.createBy.id!= null ">create_by = #{entity.createBy.id},</if>                                       <!-- 创建者 varchar2(64)-->
+			<if test="entity.createDate != null">create_date = #{entity.createDate},</if>                                       <!-- 创建时间 timestamp(6)-->
+			<if test="entity.updateBy!= null and entity.updateBy.id!= null ">update_by = #{entity.updateBy.id},</if>                                       <!-- 更新者 varchar2(64)-->
+			<if test="entity.updateDate != null">update_date = #{entity.updateDate},</if>                                       <!-- 更新时间 timestamp(6)-->
+			<if test="entity.remarks != null">remarks = #{entity.remarks},</if>                                                 <!-- 备注信息 nvarchar2(255)-->
+		</set>
+		WHERE id = #{entity.id}
+	</update>
+
+	<!-- 根据条件更新记录,只把非空的值更到对应的字段-->
+	<update id="updateByWhereSelective">
+		UPDATE oa_notify a
+		<set>
+			<if test="entity.type != null">type = #{entity.type},</if>                                                          <!-- 类型 char(1)-->
+			<if test="entity.title != null">title = #{entity.title},</if>                                                       <!-- 标题 nvarchar2(200)-->
+			<if test="entity.content != null">content = #{entity.content},</if>                                                 <!-- 内容 nvarchar2(2000)-->
+			<if test="entity.files != null">files = #{entity.files},</if>                                                       <!-- 附件 nvarchar2(2000)-->
+			<if test="entity.status != null">status = #{entity.status},</if>                                                    <!-- 状态 char(1)-->
+			<if test="entity.createBy!= null and entity.createBy.id!= null ">create_by = #{entity.createBy.id},</if>                                       <!-- 创建者 varchar2(64)-->
+			<if test="entity.createDate != null">create_date = #{entity.createDate},</if>                                       <!-- 创建时间 timestamp(6)-->
+			<if test="entity.updateBy!= null and entity.updateBy.id!= null ">update_by = #{entity.updateBy.id},</if>                                       <!-- 更新者 varchar2(64)-->
+			<if test="entity.updateDate != null">update_date = #{entity.updateDate},</if>                                       <!-- 更新时间 timestamp(6)-->
+			<if test="entity.remarks != null">remarks = #{entity.remarks},</if>                                                 <!-- 备注信息 nvarchar2(255)-->
+		</set>
+		where  <!-- 防止无where条件时，删除全表、更新全表 -->
+		<trim prefixOverrides="AND |OR ">
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</trim>
+	</update>
+
+	<!-- 根据主键删除记录 -->
+	<update id="deleteById">
+		UPDATE oa_notify SET 
+		del_flag = ${@com.sicheng.common.persistence.BaseEntity@DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 根据多个id删除记录 -->
+	<update id="deleteByIdIn">
+		DELETE FROM oa_notify a
+		<where>
+			<choose>
+				<when test="list != null and list.size >0">
+					a.id in
+					<foreach close=")" collection="list" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</when>
+				<otherwise> 1=2 </otherwise>
+			</choose>
+		</where>
+	</update>
+	
+	<!-- 根据条件删除记录 -->
+	<update id="deleteByWhere">
+		DELETE FROM oa_notify a
+		where  <!-- 防止无where条件时，删除全表、更新全表 -->
+		<trim prefixOverrides="AND |OR ">
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</trim>
+	</update>
+
+	<!-- 根据条件查询记录总数 -->
+	<select id="countByWhere" resultType="java.lang.Integer">
+		SELECT <if test="w!=null and w.distinct">DISTINCT</if> COUNT(*) FROM oa_notify a
+		<where>
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</where>
+	</select>
+
+</mapper>

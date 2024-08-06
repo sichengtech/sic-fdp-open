@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache>
+
+	<!-- 缓存对象存储到磁盘上的路径. 
+	java.io.tmpdir在哪里，使用命令查看：System.getProperty("java.io.tmpdir");
+	还可以使用../temp/fdp/ehcache，java.io.tmpdir/ehcache
+	-->
+	<diskStore path="java.io.tmpdir" />
+	
+	<!-- 
+	cache的参数说明：
+	maxEntriesLocalHeap(必填属性) :设置缓存在本地内存中最大缓存项数量(0 表示无限)(等效于旧版本中的 maxElementsInMemory 属性)
+	eternal：缓存中对象是否为永久的，如果是，超时设置将被忽略，对象从不过期。
+	timeToIdleSeconds：缓存数据空闲的最大时间（单位:秒），也就是说如果有一个缓存有多久没有被访问(touch)就会被销毁，如果该值是 0 表示无穷长的时间。
+    timeToLiveSeconds：缓存数据存活的时间（单位:秒），缓存对象最大的的存活时间，超过这个时间就会被销毁，这只能在元素不是永久驻留时有效，如果该值是0表示无穷长的时间。
+    overflowToDisk：内存不足时，是否启用磁盘缓存。
+    memoryStoreEvictionPolicy：缓存满了之后的淘汰算法。
+    maxEntriesLocalDisk：是用来限制在磁盘上所能保存的元素的最大数量的。
+	diskPersistent： 是否在磁盘上持久化。指重启jvm后，数据是否有效。默认为false。 
+	diskExpiryThreadIntervalSeconds： 对象检测线程运行时间间隔。标识对象状态的线程多长时间运行一次。 
+	diskSpoolBufferSizeMB： DiskStore使用的磁盘大小，默认值30MB。每个cache使用各自的DiskStore。    
+	 -->		
+
+	<!-- 默认缓存配置，
+	这个默认配置尽量不要修改，Ehcache新建缓存分区时都是克隆这个defaultCache。
+	如果你有特殊的参数配置，请像下面的actCache一样单独配置
+	-->
+	<defaultCache 
+		maxEntriesLocalHeap="10000" 
+		eternal="false" 
+		timeToLiveSeconds="3600" 
+		overflowToDisk="false"
+		maxEntriesLocalDisk="10000"
+		memoryStoreEvictionPolicy="LRU"
+	/>
+	
+	<!-- 工作流模块缓存(只admin系统需要) -->
+	<cache name="actCache" 
+		maxEntriesLocalHeap="10000" 
+		eternal="false" 
+		timeToLiveSeconds="3600" 
+		overflowToDisk="false" 
+		maxEntriesLocalDisk="10000"
+		memoryStoreEvictionPolicy="LRU"
+	/>
+	
+	<!-- 
+	关于session在缓存中的存储
+	shiro使用缓存技术来存储session,根据配置不同可使用EhCache、Redis缓存。
+	若使用Ehcache缓存，本段文字就值得你阅读。
+	
+	在Ehcache缓存方案中
+	shiro会克隆一份defaultCache，来做为session的专用缓存。
+	缓存的有效期配置在fdp.properties文件中session.sessionTimeout参数
+	不受Ehcache缓存的timeToIdleSeconds管理
+	只需要保证timeToIdleSeconds大于等于fdp.properties文件中session.sessionTimeout
+	 -->
+</ehcache>

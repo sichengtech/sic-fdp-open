@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 自定义的表单 -->
+<customForm version="1.0">
+	<name description="表单名称">活动报名</name>
+	<sort description="排序，多个表单的显示顺序">4</sort>
+	<creater description="创建者">张三</creater>
+	<createDate description="创建日期">2016-05-30</createDate>
+	<remarks description="备注信息">房产模型</createDate>
+	
+	<fields>
+		<field label="用户名" columnName="s1" tableName="t1" showType="3" validation="2,3,4,5" style="" helpMsg="提示文本">
+			<onclick></onclick>
+		
+		</fields>
+	
+	</form>
+	
+</customForm>

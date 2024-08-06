@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sicheng.admin.oa.dao.OaNotifyDao">
+
+	<!--
+	请把你的扩展SQL写到 当前 文件中
+	SysVariableDaoBase.xml文件是父文件，是由系统提供的，内含有单表操作的常用SQL。
+	SysVariableDao.xml文件是子文件，内容为空，供你写扩展SQL。
+	SysVariableDao.xml文件与SysVariableDaoBase.xml文件，在运行时会合并起来。
+	SysVariableDaoBase.xml文件，因为不包含你写的SQL,可反复替换。
+	第二次替换时，SysVariableDao.xml文件的内容你要自行做好备份。
+	-->
+
+	<sql id="oaNotifyColumnsChild">
+		a.ID AS "id",
+		a.TYPE AS "type",
+		a.TITLE AS "title",
+		a.CONTENT AS "content",
+		a.FILES AS "files",
+		a.STATUS AS "status",
+		a.CREATE_BY AS "createBy.id",
+		a.CREATE_DATE AS "createDate",
+		a.UPDATE_BY AS "updateBy.id",
+		a.UPDATE_DATE AS "updateDate",
+		a.REMARKS AS "remarks",
+		a.DEL_FLAG AS "delFlag",
+		b.read_num,
+		b.un_read_num
+	</sql>
+	
+	<sql id="oaNotifyJoinsChild">
+		<!-- 查询已读和未读条数 -->
+		LEFT JOIN (
+			SELECT r.oa_notify_id, 
+				   sum(case when r.read_flag = '1' then 1 else 0 end) read_num,
+				   sum(case when r.read_flag != '1' then 1 else 0 end) un_read_num 
+			FROM OA_NOTIFY_RECORD r GROUP BY r.oa_notify_id
+		) b ON b.oa_notify_id = a.id
+	</sql>
+	
+	<select id="get" resultType="OaNotify">
+		SELECT 
+			<include refid="oaNotifyColumnsChild"/>
+		FROM OA_NOTIFY a
+		<include refid="oaNotifyJoinsChild"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="OaNotify">
+		SELECT 
+			<include refid="oaNotifyColumnsChild"/>
+			<if test="isSelf">,
+				r.read_flag
+			</if>
+		FROM OA_NOTIFY a
+		<include refid="oaNotifyJoinsChild"/>
+		<!-- 我的通知 -->
+		<if test="isSelf">
+			JOIN OA_NOTIFY_RECORD r ON r.oa_notify_id = a.id AND r.user_id = #{currentUser.id}
+		</if>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="title != null and title != ''">
+			<if test="dbType$ == 'oracle'">AND lower(a.TITLE) LIKE '%'||lower(#{title})||'%'</if>
+			<if test="dbType$ == 'mssql'">AND a.TITLE LIKE '%'+#{title}+'%'</if>
+			<if test="dbType$ == 'mysql'">AND a.TITLE LIKE CONCAT('%', #{title}, '%')</if>
+		</if>
+		<if test="type != null and type != ''">
+			AND a.TYPE = #{type}
+		</if>
+		<if test="status != null and status != ''">
+			AND a.STATUS = #{status}
+		</if>
+		<if test="isSelf">
+			AND a.STATUS = '1'
+		</if>
+		ORDER BY a.id DESC
+	</select>
+	
+	<select id="findAllList" resultType="OaNotify">
+		SELECT 
+			<include refid="oaNotifyColumnsChild"/>
+		FROM OA_NOTIFY a
+		<include refid="oaNotifyJoinsChild"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+		ORDER BY a.id DESC
+	</select>
+	
+	<select id="findCount" resultType="Long">
+		SELECT 
+			count(1)
+		FROM OA_NOTIFY a
+		<if test="isSelf">
+			JOIN OA_NOTIFY_RECORD r ON r.oa_notify_id = a.id AND r.user_id = #{currentUser.id}
+				<if test="readFlag != null and readFlag != ''">
+					AND r.read_flag = #{readFlag}
+				</if>
+		</if>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="isSelf">
+			AND a.STATUS = '1'
+		</if>
+	</select>
+	
+	<!-- <insert id="insert" keyProperty="id" keyColumn="id" useGeneratedKeys="true">
+		INSERT INTO OA_NOTIFY(
+			ID,
+			TYPE,
+			TITLE,
+			CONTENT,
+			FILES,
+			STATUS,
+			CREATE_BY,
+			CREATE_DATE,
+			UPDATE_BY,
+			UPDATE_DATE,
+			REMARKS,
+			DEL_FLAG
+		) VALUES (
+			<if test="pkMode==1">#{id},</if>			
+			<if test="pkMode==2">
+				<if test="dbType$ == 'oracle'">oa_notify_seq.nextval,</if>
+				<if test="dbType$ == 'mssql'">null,</if>
+				<if test="dbType$ == 'mysql'">null,</if>
+			</if>
+			#{type},
+			#{title},
+			#{content},
+			#{files},
+			#{status},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert> -->
+	
+	<update id="update">
+		UPDATE OA_NOTIFY SET 	
+			TYPE = #{type},
+			TITLE = #{title},
+			CONTENT = #{content},
+			FILES = #{files},
+			STATUS = #{status},
+			UPDATE_BY = #{updateBy.id},
+			UPDATE_DATE = #{updateDate},
+			REMARKS = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- <update id="delete">
+		UPDATE OA_NOTIFY SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update> -->
+	
+</mapper>

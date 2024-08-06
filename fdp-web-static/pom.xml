@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <!-- static 模块不需要继承父工程的第三方jar包-->
+  <parent>
+    <groupId>com.sicheng</groupId>
+    <artifactId>fdp-all</artifactId>
+    <version>4.0</version>
+  </parent>
+
+  
+  <groupId>com.sicheng</groupId>
+  <artifactId>static</artifactId>
+  <version>4.0</version>
+  <packaging>war</packaging>
+  <name>fdp-web-static</name>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+    <!-- 依赖第三方jar包 -->  
+
+  </dependencies>
+
+</project>

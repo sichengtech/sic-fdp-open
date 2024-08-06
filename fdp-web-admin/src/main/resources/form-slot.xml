@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+自定义表单业务的 槽位表
+“槽位”的意思是：有3张有N个字段的表，表中有多种类型的字段，字段可为空，这些字段等待被占用，这个空字段就叫“槽位”。
+通过“表单编辑器”去占用槽位，并设定：表单控件的名称、验证规则、数据存储到哪一个槽位。
+
+本文件修改后，立即生效。自定义表单程序，每次操作使用都会解析本xml文件，所以会立即生效。
+ -->
+<slot>
+	<tables>
+		<table name="t1" description="一张基础表，给一次开发人员使用，10个字段（id,栏目ID,title,创建人，创建时间，修改人，修改时间，状态）">
+			<column name="id" jdbcType="Integer" comments="主键ID" maxlength="" isPk="true"></column>
+			<column name="channel_id" jdbcType="Integer" comments="栏目ID" maxlength="" isPk="false"></column>
+			<column name="title" jdbcType="String" comments="标题" maxlength="255" isPk="false"></column>
+			<column name="creator" jdbcType="String" comments="创建人" maxlength="255" isPk="false"></column>
+			<column name="create_time" jdbcType="java.util.Date" comments="创建时间" maxlength="" isPk="false"></column>
+			<column name="editor" jdbcType="String" comments="修改人" maxlength="255" isPk="false"></column>
+			<column name="edit_time" jdbcType="java.util.Date" comments="修改时间" maxlength="" isPk="false"></column>
+			<column name="status" jdbcType="Integer" comments="状态" maxlength="" isPk="false"></column>
+		</table>
+		<table name="t2" description="一张扩展表，给二次开发人员使用，预留45个槽位（空字段），1个id,30个String类型，5个日期类型，5个int,5个小数">
+			<column name="id" jdbcType="Integer" comments="主键ID" maxlength="" isPk="true"></column>
+			<column name="s1" jdbcType="String" comments="预留String类型字段" maxlength="255" isPk="false"></column>
+			<column name="s2" jdbcType="String" comments="预留String类型字段" maxlength="255" isPk="false"></column>
+			<column name="s3" jdbcType="String" comments="预留String类型字段" maxlength="255" isPk="false"></column>
+			<column name="s4" jdbcType="String" comments="预留String类型字段" maxlength="255" isPk="false"></column>
+			<column name="s5" jdbcType="String" comments="预留String类型字段" maxlength="255" isPk="false"></column>
+			<column name="s6" jdbcType="String" comments="预留String类型字段" maxlength="255" isPk="false"></column>
+			<column name="s7" jdbcType="String" comments="预留String类型字段" maxlength="255" isPk="false"></column>
+			<column name="s8" jdbcType="String" comments="预留String类型字段" maxlength="255" isPk="false"></column>
+			<column name="s9" jdbcType="String" comments="预留String类型字段" maxlength="255" isPk="false"></column>
+			<column name="s10" jdbcType="String" comments="预留String类型字段" maxlength="255" isPk="false"></column>
+			<column name="date1" jdbcType="java.util.Date" comments="预留dateTime类型字段" maxlength="" isPk="false"></column>
+			<column name="date2" jdbcType="java.util.Date" comments="预留dateTime类型字段" maxlength="" isPk="false"></column>
+			<column name="date3" jdbcType="java.util.Date" comments="预留dateTime类型字段" maxlength="" isPk="false"></column>
+			<column name="date4" jdbcType="java.util.Date" comments="预留dateTime类型字段" maxlength="" isPk="false"></column>
+			<column name="date5" jdbcType="java.util.Date" comments="预留dateTime类型字段" maxlength="" isPk="false"></column>
+			<column name="int1" jdbcType="Integer" comments="预留Integer类型字段" maxlength="" isPk="false"></column>
+			<column name="int2" jdbcType="Integer" comments="预留Integer类型字段" maxlength="" isPk="false"></column>
+			<column name="int3" jdbcType="Integer" comments="预留Integer类型字段" maxlength="" isPk="false"></column>
+			<column name="int4" jdbcType="Integer" comments="预留Integer类型字段" maxlength="" isPk="false"></column>
+			<column name="int5" jdbcType="Integer" comments="预留Integer类型字段" maxlength="" isPk="false"></column>
+			<column name="num1" jdbcType="Integer" comments="预留Float类型字段" maxlength="" isPk="false"></column>
+			<column name="num2" jdbcType="Integer" comments="预留Float类型字段" maxlength="" isPk="false"></column>
+			<column name="num3" jdbcType="Integer" comments="预留Float类型字段" maxlength="" isPk="false"></column>
+			<column name="num4" jdbcType="Integer" comments="预留Float类型字段" maxlength="" isPk="false"></column>
+			<column name="num5" jdbcType="Integer" comments="预留Float类型字段" maxlength="" isPk="false"></column>
+		</table>
+		<table name="t3" description="一张大字段表，预留4个槽位（空字段）1个id，2个clob，2个blob">
+			<column name="id" jdbcType="Integer" comments="主键ID" maxlength="" isPk="true"></column>
+			<column name="c1" jdbcType="String" comments="预留Clob类型字段" maxlength="" isPk="false"></column>
+			<column name="c2" jdbcType="String" comments="预留Clob类型字段" maxlength="" isPk="false"></column>
+			<column name="b1" jdbcType="byte[]" comments="预留Blob类型字段" maxlength="" isPk="false"></column>
+			<column name="b2" jdbcType="byte[]" comments="预留Blob类型字段" maxlength="" isPk="false"></column>
+		</table>
+	</tables>
+
+	
+	<!-- 验证规则 -->
+	<rules>
+		<rule id="10" name="无验证" regular="" failmsg=""></rule>
+		<rule id="20" name="非空" regular="" failmsg="请输入值"></rule>
+		<rule id="30" name="长度范围" regular="" failmsg="长度必须在2-5之间"></rule>
+		<rule id="40" name="数值" regular="" failmsg="请输入数值"></rule>
+		<rule id="50" name="中文" regular="" failmsg="请输入中文"></rule>
+		<rule id="60" name="邮箱" regular="" failmsg="请输入合格的邮箱地址"></rule>
+		<rule id="70" name="网址" regular="" failmsg="请输入合格的网址"></rule>
+		<rule id="80" name="手机号" regular="" failmsg="请输入合格的网址"></rule>
+		<rule id="90" name="座机号" regular="" failmsg="请输入合格的网址"></rule>
+		<rule id="100" name="身份证号" regular="" failmsg="请输入合格的网址"></rule>
+		<rule id="110" name="邮编" regular="" failmsg="请输入合格的网址"></rule>
+		<rule id="120" name="自定义" regular="" failmsg="输入不合格"></rule>
+	</rules>
+
+
+	<!-- 字段显示类型 -->
+	<showTypes>
+		<showType id="1" value="input" label="单行文本"/>
+		<showType id="2" value="textarea" label="多行文本"/>
+		<showType id="3" value="select" label="下拉选项"/>
+		<showType id="4" value="radiobox" label="单选按钮"/>
+		<showType id="5" value="checkbox" label="复选框"/>
+		<showType id="6" value="dateselect" label="日期选择"/>
+		<showType id="7" value="userselect" label="人员选择"/>
+		<showType id="8" value="officeselect" label="部门选择"/>
+		<showType id="9" value="areaselect" label="区域选择"/>
+		<showType id="10" value="treeselect" label="树选择控件"/>
+		<showType id="11" value="fileselect" label="文件上传选择"/>
+	</showTypes>
+</slot>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sicheng.admin.test.dao.TestDataMainJoinDao1线2表JOIN$test_data_main$test_data_child">
+
+	<!-- 
+	请把你的扩展SQL写到 当前 文件中 
+	TestDataMainJoinDaoBase1线2表JOIN$test_data_main$test_data_child.xml文件是父文件，是由系统提供的，内含有多表join操作的常用SQL。
+	TestDataMainJoinDao1线2表JOIN$test_data_main$test_data_child.xml文件是子文件，内容为空，供你写扩展SQL。
+	TestDataMainJoinDao1线2表JOIN$test_data_main$test_data_child.xml文件与TestDataMainJoinDaoBase1线2表JOIN$test_data_main$test_data_child.xml文件，在运行时会合并起来。
+	TestDataMainJoinDaoBase1线2表JOIN$test_data_main$test_data_child.xml文件，因为不包含你写的SQL,可反复替换。
+	第二次替换时，TestDataMainJoinDao1线2表JOIN$test_data_main$test_data_child.xml文件的内容你要自行做好备份。
+	-->
+
+</mapper>

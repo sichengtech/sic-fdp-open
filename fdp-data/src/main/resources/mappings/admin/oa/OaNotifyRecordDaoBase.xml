@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sicheng.admin.oa.dao.OaNotifyRecordDao">
+
+	<!-- 全部字段 -->
+	<sql id="oaNotifyRecordColumns">
+		a.id AS "id",                                                        <!-- 编号 number(24)-->
+		a.oa_notify_id AS "oaNotifyId",                                      <!-- 通知通告ID number(24)-->
+		a.user_id AS "user.id",                                              <!-- 接受人 number(24)-->
+		a.read_flag AS "readFlag",                                           <!-- 阅读标记 char(1)-->
+		a.read_date AS "readDate"                                           <!-- 阅读时间 date(7)-->
+		u3.name AS "user.name",
+		
+	</sql>
+
+	<!-- 关联表 -->
+	<sql id="oaNotifyRecordJoins">
+		LEFT JOIN sys_user u3 ON u3.id = a.user_id
+	</sql>
+
+	<!-- 复用的sql片段，where条件部分，使用者：deleteByWhere、countByWhere、selectByWhere、updateByWhere、updateByWhereSelective -->
+	<sql id="Where_Clause">
+	<if test="w!=null and w.e!=null">
+		<if test="w.e.id != null ">AND a.id = #{w.e.id}</if>
+		<if test="w.e.oaNotifyId != null ">AND a.oa_notify_id = #{w.e.oaNotifyId}</if>
+		<if test="w.e.user != null and w.e.user.id != null ">AND a.user_id = #{w.e.user.id}</if>
+		<if test="w.e.readFlag != null and w.e.readFlag != ''">AND a.read_flag = #{w.e.readFlag}</if>
+		<if test="w.e.beginReadDate != null and w.e.endReadDate != null ">AND a.read_date BETWEEN #{w.e.beginReadDate} AND #{w.e.endReadDate}</if>
+	</if>
+	</sql>	
+
+	<!--根据主键查询记录-->
+	<select id="selectById" resultType="OaNotifyRecord">
+		SELECT 
+		<include refid="oaNotifyRecordColumns"/>
+		FROM oa_notify_record a
+		<include refid="oaNotifyRecordJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<!-- 根据多个id查询出一个列表 -->
+	<select id="selectByIdIn" resultType="OaNotifyRecord">
+		SELECT
+		<include refid="oaNotifyRecordColumns"/>
+		FROM oa_notify_record a
+		<where>
+			<choose>
+				<when test="list != null and list.size >0">
+					a.id in
+					<foreach close=")" collection="list" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</when>
+				<otherwise> 1=2 </otherwise>
+			</choose>
+		</where>
+	</select>
+
+	<!--根据条件查询记录集-->
+	<select id="selectByWhere" resultType="OaNotifyRecord">
+		SELECT <if test="w!=null and w.distinct">DISTINCT</if>
+		<include refid="oaNotifyRecordColumns"/>
+		FROM oa_notify_record a
+		<include refid="oaNotifyRecordJoins"/>
+		<where>
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</where>
+		<choose>
+			<when test="w!=null and w.outputSqlOrderBy !=null">
+				${w.outputSqlOrderBy}
+			</when>
+			<when test="p!=null and p.orderBy != null">
+				ORDER BY ${p.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!--查询所有记录集，无条件-->
+	<select id="selectAll" resultType="OaNotifyRecord">
+		SELECT <if test="w!=null and w.distinct">DISTINCT</if>
+		<include refid="oaNotifyRecordColumns"/>
+		FROM oa_notify_record a
+		<include refid="oaNotifyRecordJoins"/>
+		<choose>
+			<when test="w!=null and w.outputSqlOrderBy !=null">
+				${w.outputSqlOrderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!--插入。并返回自增长的主键值，mysql、oracle都可以-->
+	<insert id="insert" keyProperty="entity.id" keyColumn="id" useGeneratedKeys="true">
+		INSERT INTO oa_notify_record(
+			id,                                                <!-- 编号 number(24)-->
+			oa_notify_id,                                      <!-- 通知通告ID number(24)-->
+			user_id,                                           <!-- 接受人 number(24)-->
+			read_flag,                                         <!-- 阅读标记 char(1)-->
+			read_date                                         <!-- 阅读时间 date(7)-->
+
+		) VALUES (
+			<if test="entity.pkMode==1">#{entity.id},</if>
+			<if test="entity.pkMode==2">
+				<if test="entity.dbType$ == 'oracle'">oa_notify_record_seq.nextval,</if>
+				<if test="entity.dbType$ == 'mssql'">null,</if>
+				<if test="entity.dbType$ == 'mysql'">null,</if>
+			</if>
+			#{entity.oaNotifyId},                              <!-- 通知通告ID number(24)-->
+			#{entity.user.id},                                 <!-- 接受人 number(24)-->
+			#{entity.readFlag},                                <!-- 阅读标记 char(1)-->
+			#{entity.readDate}                                <!-- 阅读时间 date(7)-->
+
+		)
+	</insert>
+
+	<!--插入,只把非空的值插入到对应的字段。并返回自增长的主键值，mysql、oracle都可以-->
+	<insert id="insertSelective" keyProperty="entity.id" keyColumn="id" useGeneratedKeys="true">
+		INSERT INTO oa_notify_record
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="entity.pkMode==1"><if test="entity.id != null">id,</if></if>
+			<if test="entity.pkMode==2">id,</if>
+			<if test="entity.oaNotifyId != null">oa_notify_id,</if>                            <!-- 通知通告ID number(24)-->
+			<if test="entity.user!= null and entity.user.id!= null ">user_id,</if>                                    <!-- 接受人 number(24)-->
+			<if test="entity.readFlag != null">read_flag,</if>                                 <!-- 阅读标记 char(1)-->
+			<if test="entity.readDate != null">read_date,</if>                                 <!-- 阅读时间 date(7)-->
+		</trim>
+		 VALUES 
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="entity.pkMode==1">
+				<if test="entity.id != null">#{entity.id},</if>
+			</if>
+			<if test="entity.pkMode==2">
+				<if test="entity.dbType$ == 'oracle'">oa_notify_record_seq.nextval,</if>
+				<if test="entity.dbType$ == 'mssql'">null,</if>
+				<if test="entity.dbType$ == 'mysql'">null,</if>
+			</if>
+			<if test="entity.oaNotifyId != null">#{entity.oaNotifyId},</if>                              <!-- 通知通告ID number(24)-->
+			<if test="entity.user!= null and entity.user.id!= null ">#{entity.user.id},</if>                                    <!-- 接受人 number(24)-->
+			<if test="entity.readFlag != null">#{entity.readFlag},</if>                                  <!-- 阅读标记 char(1)-->
+			<if test="entity.readDate != null">#{entity.readDate},</if>                                  <!-- 阅读时间 date(7)-->
+		</trim>
+	</insert>
+
+	<!-- 根据主键更新记录-->
+	<update id="updateById">
+		UPDATE oa_notify_record SET
+			oa_notify_id = #{entity.oaNotifyId},                            <!-- 通知通告ID number(24)-->
+			user_id = #{entity.user.id},                                    <!-- 接受人 number(24)-->
+			read_flag = #{entity.readFlag},                                 <!-- 阅读标记 char(1)-->
+			read_date = #{entity.readDate}                                 <!-- 阅读时间 date(7)-->
+
+		WHERE id = #{entity.id}
+	</update>
+
+	<!-- 根据条件更新记录-->
+	<update id="updateByWhere">
+		UPDATE oa_notify_record a SET
+			oa_notify_id = #{entity.oaNotifyId},                            <!-- 通知通告ID number(24)-->
+			user_id = #{entity.user.id},                                    <!-- 接受人 number(24)-->
+			read_flag = #{entity.readFlag},                                 <!-- 阅读标记 char(1)-->
+			read_date = #{entity.readDate}                                 <!-- 阅读时间 date(7)-->
+
+		where  <!-- 防止无where条件时，删除全表、更新全表 -->
+		<trim prefixOverrides="AND |OR ">
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</trim>
+	</update>
+
+	<!-- 根据主键更新记录,只把非空的值更到对应的字段-->
+	<update id="updateByIdSelective">
+		UPDATE oa_notify_record
+		<set>
+			<if test="entity.oaNotifyId != null">oa_notify_id = #{entity.oaNotifyId},</if>                                      <!-- 通知通告ID number(24)-->
+			<if test="entity.user!= null and entity.user.id!= null ">user_id = #{entity.user.id},</if>                                                 <!-- 接受人 number(24)-->
+			<if test="entity.readFlag != null">read_flag = #{entity.readFlag},</if>                                             <!-- 阅读标记 char(1)-->
+			<if test="entity.readDate != null">read_date = #{entity.readDate},</if>                                             <!-- 阅读时间 date(7)-->
+		</set>
+		WHERE id = #{entity.id}
+	</update>
+
+	<!-- 根据条件更新记录,只把非空的值更到对应的字段-->
+	<update id="updateByWhereSelective">
+		UPDATE oa_notify_record a
+		<set>
+			<if test="entity.oaNotifyId != null">oa_notify_id = #{entity.oaNotifyId},</if>                                      <!-- 通知通告ID number(24)-->
+			<if test="entity.user!= null and entity.user.id!= null ">user_id = #{entity.user.id},</if>                                                 <!-- 接受人 number(24)-->
+			<if test="entity.readFlag != null">read_flag = #{entity.readFlag},</if>                                             <!-- 阅读标记 char(1)-->
+			<if test="entity.readDate != null">read_date = #{entity.readDate},</if>                                             <!-- 阅读时间 date(7)-->
+		</set>
+		where  <!-- 防止无where条件时，删除全表、更新全表 -->
+		<trim prefixOverrides="AND |OR ">
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</trim>
+	</update>
+
+	<!-- 根据主键删除记录 -->
+	<update id="deleteById">
+		DELETE FROM oa_notify_record
+		WHERE id = #{id}
+	</update>
+
+	<!-- 根据多个id删除记录 -->
+	<update id="deleteByIdIn">
+		DELETE FROM oa_notify_record a
+		<where>
+			<choose>
+				<when test="list != null and list.size >0">
+					a.id in
+					<foreach close=")" collection="list" item="item" open="(" separator=",">
+						#{item}
+					</foreach>
+				</when>
+				<otherwise> 1=2 </otherwise>
+			</choose>
+		</where>
+	</update>
+	
+	<!-- 根据条件删除记录 -->
+	<update id="deleteByWhere">
+		DELETE FROM oa_notify_record a
+		where  <!-- 防止无where条件时，删除全表、更新全表 -->
+		<trim prefixOverrides="AND |OR ">
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</trim>
+	</update>
+
+	<!-- 根据条件查询记录总数 -->
+	<select id="countByWhere" resultType="java.lang.Integer">
+		SELECT <if test="w!=null and w.distinct">DISTINCT</if> COUNT(*) FROM oa_notify_record a
+		<where>
+			<if test="w!=null">
+			<include refid="Where_Clause" />
+			${w.outputSqlWhere}
+			</if>
+		</where>
+	</select>
+
+</mapper>
