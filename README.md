@@ -20,7 +20,7 @@ FDP提供了常用工具进行封装，包括日志工具、缓存工具、服�
 
 ## FDP的文档
 FDP快速开发平台的文档  
-https://www.sicheng.net/shopdoc/105382186.html
+https://www.sicheng.net/guide-fdp/
 
 ## FDP的工程结构
 FDP是Maven多模块结构(从FDP3.1起)   
